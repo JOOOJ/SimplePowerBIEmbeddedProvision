@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.PowerBI.Api.V1;
 using System.Configuration;
+using Microsoft.Rest;
+using Microsoft.PowerBI.Api.V1.Models;
 
 
 namespace SimplePowerBIEmbeddedProvision
@@ -14,16 +16,35 @@ namespace SimplePowerBIEmbeddedProvision
         static string AccessKey = ConfigurationManager.AppSettings["AccessKey"];
         static string WorkspaceCollectionName = ConfigurationManager.AppSettings["WorkspaceCollectionName"];
         static string WorkspaceId = ConfigurationManager.AppSettings["WorkspaceId"];
-        private async Task<IPowerBIClient> CreateClient()
+        static string PowerBIApiEndpoint = ConfigurationManager.AppSettings["PowerBIApiEndpoint"];
+
+        private IPowerBIClient CreateClient()
         {
-            return null;
+            if (string.IsNullOrEmpty(AccessKey))
+            {
+                Console.WriteLine("Please provide correct Access Key to create Power BI Client.");
+                return null;
+            }
+            if (string.IsNullOrEmpty(PowerBIApiEndpoint))
+            {
+                Console.WriteLine("Please provide correct Power BI endpoint.");
+                return null;
+            }
+            TokenCredentials token = new TokenCredentials(AccessKey,"AppKey");
+
+            IPowerBIClient client = new PowerBIClient(token);
+            client.BaseUri = new Uri(PowerBIApiEndpoint);
+            return client;
         }
 
-        public async Task<Workspaces> CreateWorkspace()
+        public async Task<Workspace> CreateWorkspace()
         {
-            return null;
+            using (var client = CreateClient())
+            {
+                return await client.Workspaces.PostWorkspaceAsync(WorkspaceCollectionName);
+            }
         }
-
+        
         public async Task<Imports> UploadPBIXFile()
         {
             return null;
