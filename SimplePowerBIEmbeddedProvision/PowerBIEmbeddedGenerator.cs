@@ -37,15 +37,15 @@ namespace SimplePowerBIEmbeddedProvision
             return client;
         }
 
-        public async Task<Workspace> CreateWorkspace()
+        public Workspace CreateWorkspace()
         {
             using (var client = CreateClient())
             {
-                return await client.Workspaces.PostWorkspaceAsync(WorkspaceCollectionName);
+                return client.Workspaces.PostWorkspace(WorkspaceCollectionName);
             }
         }
         
-        public async Task<Import> UploadPBIXFile(string filePath,string datasetName)
+        public Import UploadPBIXFile(string filePath,string datasetName)
         {
             if(string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(WorkspaceId) || string.IsNullOrEmpty(datasetName) || string.IsNullOrEmpty(WorkspaceCollectionName))
             {
@@ -55,7 +55,22 @@ namespace SimplePowerBIEmbeddedProvision
             {
                 using (var client = CreateClient())
                 {
-                    return await client.Imports.PostImportWithFileAsync(WorkspaceCollectionName, WorkspaceId, file);
+                    return client.Imports.PostImportWithFile(WorkspaceCollectionName, WorkspaceId, file);
+                }
+            }
+        }
+
+        public Import UploadPBIXFile(string filePath, string datasetName,string workspaceId)
+        {
+            if (string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(workspaceId) || string.IsNullOrEmpty(datasetName) || string.IsNullOrEmpty(WorkspaceCollectionName))
+            {
+                return null;
+            }
+            using (FileStream file = File.OpenRead(filePath))
+            {
+                using (var client = CreateClient())
+                {
+                    return client.Imports.PostImportWithFile(WorkspaceCollectionName, WorkspaceId, file);
                 }
             }
         }
