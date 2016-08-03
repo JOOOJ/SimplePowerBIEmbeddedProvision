@@ -7,7 +7,7 @@ using Microsoft.PowerBI.Api.V1;
 using System.Configuration;
 using Microsoft.Rest;
 using Microsoft.PowerBI.Api.V1.Models;
-
+using System.IO;
 
 namespace SimplePowerBIEmbeddedProvision
 {
@@ -45,9 +45,19 @@ namespace SimplePowerBIEmbeddedProvision
             }
         }
         
-        public async Task<Imports> UploadPBIXFile()
+        public async Task<Import> UploadPBIXFile(string filePath,string datasetName)
         {
-            return null;
+            if(string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(WorkspaceId) || string.IsNullOrEmpty(datasetName) || string.IsNullOrEmpty(WorkspaceCollectionName))
+            {
+                return null;
+            }
+            using (FileStream file = File.OpenRead(filePath))
+            {
+                using (var client = CreateClient())
+                {
+                    return await client.Imports.PostImportWithFileAsync(WorkspaceCollectionName, WorkspaceId, file);
+                }
+            }
         }
     }
 }
