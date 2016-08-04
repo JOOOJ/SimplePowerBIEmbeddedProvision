@@ -30,22 +30,22 @@ namespace SimplePowerBIEmbeddedProvision
                 Console.WriteLine("Please provide correct Power BI endpoint.");
                 return null;
             }
-            TokenCredentials token = new TokenCredentials(AccessKey,"AppKey");
+            TokenCredentials token = new TokenCredentials(AccessKey, "AppKey");
 
             IPowerBIClient client = new PowerBIClient(token);
             client.BaseUri = new Uri(PowerBIApiEndpoint);
             return client;
         }
 
-        public Workspace CreateWorkspace()
+        public async Task<Workspace> CreateWorkspace()
         {
             using (var client = CreateClient())
             {
-                return client.Workspaces.PostWorkspace(WorkspaceCollectionName);
+                return await client.Workspaces.PostWorkspaceAsync(WorkspaceCollectionName);
             }
         }
         
-        public Import UploadPBIXFile(string filePath,string datasetName)
+        public async Task<Import> UploadPBIXFile(string filePath,string datasetName)
         {
             if(string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(WorkspaceId) || string.IsNullOrEmpty(datasetName) || string.IsNullOrEmpty(WorkspaceCollectionName))
             {
@@ -55,12 +55,12 @@ namespace SimplePowerBIEmbeddedProvision
             {
                 using (var client = CreateClient())
                 {
-                    return client.Imports.PostImportWithFile(WorkspaceCollectionName, WorkspaceId, file);
+                    return await client.Imports.PostImportWithFileAsync(WorkspaceCollectionName, WorkspaceId, file);
                 }
             }
         }
 
-        public Import UploadPBIXFile(string filePath, string datasetName,string workspaceId)
+        public async Task<Import> UploadPBIXFile(string filePath, string datasetName,string workspaceId)
         {
             if (string.IsNullOrEmpty(filePath) || string.IsNullOrEmpty(workspaceId) || string.IsNullOrEmpty(datasetName) || string.IsNullOrEmpty(WorkspaceCollectionName))
             {
@@ -70,7 +70,7 @@ namespace SimplePowerBIEmbeddedProvision
             {
                 using (var client = CreateClient())
                 {
-                    return client.Imports.PostImportWithFile(WorkspaceCollectionName, WorkspaceId, file);
+                    return await client.Imports.PostImportWithFileAsync(WorkspaceCollectionName, WorkspaceId, file);
                 }
             }
         }

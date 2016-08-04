@@ -12,10 +12,10 @@ namespace SimplePowerBIEmbeddedProvision
     {
         static void Main(string[] args)
         {
-            Run();            
+            Run().GetAwaiter().GetResult();            
         }       
 
-        static void Run()
+        static async Task Run()
         {
             Console.WriteLine("Please input 1 or 2 to choose step 1 or step 2 to provision Power BI Embedded:");
             Console.WriteLine("1. Provision a new workspace in an existing workspace collection");
@@ -29,34 +29,35 @@ namespace SimplePowerBIEmbeddedProvision
             switch (key.KeyChar)
             {
                 case '1':
-                    Workspace workspace = powerBI.CreateWorkspace();
+                    Workspace workspace = await powerBI.CreateWorkspace();
                     if(workspace==null)
                     {
                         Console.WriteLine("Create workspace failed.");
                         exit = true;
                         break;
                     }
+                    
                     Console.WriteLine("Workspace id:{0}",workspace.WorkspaceId);
-                    Run();
+                    await Run();
                     break;
                 case '2':
                     Console.WriteLine("Please input file path which you want to import:");
                     string filepath = Console.ReadLine();
                     Console.WriteLine("Please create a report name, e.g. 'myreport':");
                     string dataset = Console.ReadLine();
-                    Import import = powerBI.UploadPBIXFile(filepath, dataset);
+                    Import import = await powerBI.UploadPBIXFile(filepath, dataset);
                     Console.WriteLine("The file is imported, and the id is {0}",import.Id);
-                    Run();
+                    await Run();
                     break;
                 case '3':
                     Console.WriteLine("Please input file path which you want to import:");
                     string filepath2 = Console.ReadLine();
                     Console.WriteLine("Please create a report name, e.g. 'myreport':");
                     string dataset2 = Console.ReadLine();
-                    Workspace newworkspace = powerBI.CreateWorkspace();
-                    Import newimport = powerBI.UploadPBIXFile(filepath2, dataset2, newworkspace.WorkspaceId);
+                    Workspace newworkspace = await powerBI.CreateWorkspace();
+                    Import newimport = await powerBI.UploadPBIXFile(filepath2, dataset2, newworkspace.WorkspaceId);
                     Console.WriteLine("The file is imported, and the id is {0}", newimport.Id);
-                    Run();
+                    await Run();
                     break;
                 default:
                     exit = true;
@@ -65,7 +66,7 @@ namespace SimplePowerBIEmbeddedProvision
             }
             if (!exit)
             {
-                Run();
+                await Run();
             }
         }
     }
