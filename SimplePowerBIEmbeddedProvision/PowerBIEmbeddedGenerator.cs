@@ -55,7 +55,7 @@ namespace SimplePowerBIEmbeddedProvision
             {
                 using (var client = CreateClient())
                 {
-                    return await client.Imports.PostImportWithFileAsync(WorkspaceCollectionName, WorkspaceId, file);
+                    return await client.Imports.PostImportWithFileAsync(WorkspaceCollectionName, WorkspaceId, file,datasetName);
                 }
             }
         }
