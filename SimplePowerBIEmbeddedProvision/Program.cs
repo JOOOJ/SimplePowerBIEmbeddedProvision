@@ -21,6 +21,7 @@ namespace SimplePowerBIEmbeddedProvision
             Console.WriteLine("1. Provision a new workspace in an existing workspace collection");
             Console.WriteLine("2. Import PBIX Desktop file into an existing workspace");
             Console.WriteLine("3. Import PBIX Desktop file into a new workspace");
+            Console.WriteLine("4. Delete reports from worksapce");
             Console.WriteLine();
 
             var key = Console.ReadKey(true);
@@ -47,6 +48,7 @@ namespace SimplePowerBIEmbeddedProvision
                     string dataset = Console.ReadLine();
                     Import import = await powerBI.UploadPBIXFile(filepath, dataset);
                     Console.WriteLine("The file is imported, and the id is {0}",import.Id);
+                    Console.WriteLine();
                     await Run();
                     break;
                 case '3':
@@ -57,7 +59,23 @@ namespace SimplePowerBIEmbeddedProvision
                     Workspace newworkspace = await powerBI.CreateWorkspace();
                     Import newimport = await powerBI.UploadPBIXFile(filepath2, dataset2, newworkspace.WorkspaceId);
                     Console.WriteLine("The file is imported, and the id is {0}", newimport.Id);
+                    Console.WriteLine();
                     await Run();
+                    break;
+                case '4':
+                    Dictionary<string, string> dict = await powerBI.GetAllResports();
+                    Console.WriteLine("The below is all reports, please choose correct report id you want to delete.");
+                    foreach (KeyValuePair<string,string> item in dict)
+                    {
+                        Console.WriteLine("Workspace Id {0}",item.Key);
+                        Console.WriteLine("   {0}",item.Value);
+                    }
+                    Console.WriteLine("Please input a workspace id:");
+                    string workspaceId = Console.ReadLine();
+                    Console.WriteLine("Please input a report id you want to delete:");
+                    string reportId = Console.ReadLine();
+                    await powerBI.DeleteReport(reportId,workspaceId);
+                    Console.WriteLine("Dataset deleted successfully.");
                     break;
                 default:
                     exit = true;
