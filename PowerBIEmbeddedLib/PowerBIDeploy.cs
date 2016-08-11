@@ -38,6 +38,43 @@ namespace PowerBIEmbeddedLib
         public Import UploadPbixSingleFile(string workspaceCollectionName, string filePath, string reportName, string accessToken, string workspaceId)
         {
             CheckParameters(workspaceCollectionName, filePath, reportName, accessToken, workspaceId);
+            return Upload(workspaceCollectionName, filePath, reportName, accessToken, workspaceId);
+        }
+
+        /// <summary>
+        /// Upload PowerBI multiple files into Windows Azure
+        /// </summary>
+        /// <param name="worksapceCollectionName"></param>
+        /// <param name="accessToken"></param>
+        /// <param name="workspaceId"></param>
+        /// <param name="fileReportPairs">This is a dictionary, key is file full path, value is report name</param>
+        /// <returns></returns>
+        public IList<Import> UploadMultiPbixFiles(string worksapceCollectionName,string accessToken,string workspaceId,Dictionary<string,string> fileReportPairs)
+        {
+            CheckParameters(worksapceCollectionName, accessToken, workspaceId);
+            if(fileReportPairs==null || fileReportPairs.Count==0)
+            {
+                throw new ArgumentException("The argument fileReportPairs is incorrect", "fileReportPairs");
+            }
+            IList<Import> importList = new List<Import>();
+            foreach (KeyValuePair<string,string> item in fileReportPairs)
+            {
+                Import import = Upload(worksapceCollectionName, item.Key, item.Value, accessToken, workspaceId);
+                importList.Add(import);
+            }
+            return importList;
+        }
+        private IPowerBIClient CreateClient(string accessToken)
+        {
+            CheckParameters(accessToken);
+            TokenCredentials token = new TokenCredentials(accessToken, "AppKey");
+            IPowerBIClient client = new PowerBIClient(token);
+            client.BaseUri = new Uri(powerBIApiEndpoint);
+            return client;
+        }
+
+        private Import Upload(string workspaceCollectionName, string filePath, string reportName, string accessToken, string workspaceId)
+        {
             if (!File.Exists(filePath))
             {
                 throw new FileNotFoundException("The file cannot be found, please input correct file path", filePath);
@@ -46,18 +83,9 @@ namespace PowerBIEmbeddedLib
             {
                 using (IPowerBIClient client = CreateClient(accessToken))
                 {
-                    return client.Imports.PostImportWithFile(workspaceCollectionName, workspaceId, stream);
+                    return client.Imports.PostImportWithFile(workspaceCollectionName, workspaceId, stream, reportName);
                 }
             }
-        }
-         
-        private IPowerBIClient CreateClient(string accessToken)
-        {
-            CheckParameters(accessToken);
-            TokenCredentials token = new TokenCredentials(accessToken, "AppKey");
-            IPowerBIClient client = new PowerBIClient(token);
-            client.BaseUri = new Uri(powerBIApiEndpoint);
-            return client;
         }
 
         private void CheckParameters(params string[] parameters)
