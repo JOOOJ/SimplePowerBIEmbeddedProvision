@@ -64,6 +64,15 @@ namespace PowerBIEmbeddedLib
             }
             return importList;
         }
+
+        public IList<Import> RetrieveAllReportsByWorkspaceId(string workspaceCollectionName,string workspaceId,string accessToken)
+        {
+            CheckParameters(workspaceCollectionName, accessToken);
+            using (IPowerBIClient client = CreateClient(accessToken))
+            {
+                return client.Imports.GetImports(workspaceCollectionName, workspaceId).Value;
+            }
+        }
         private IPowerBIClient CreateClient(string accessToken)
         {
             CheckParameters(accessToken);
